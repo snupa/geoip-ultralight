@@ -2,12 +2,12 @@
 
 'use strict';
 
-if (!process.env.npm_package_config_update){
-  return;
+if (!process.env.npm_package_config_update) {
+  process.exit(1);
 }
 
 var user_agent = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 ' +
-  '(KHTML, like Gecko) Chrome/39.0.2171.36 Safari/537.36';
+'(KHTML, like Gecko) Chrome/39.0.2171.36 Safari/537.36';
 
 var cp = require('child_process');
 var fs = require('fs');
@@ -35,7 +35,7 @@ var databases = [{
   url: 'http://geolite.maxmind.com/download/geoip/database/GeoIPCountryCSV.zip',
   src: 'GeoIPCountryWhois.csv',
   dest: 'geoip-country.dat'
-},{
+  }, {
   type: 'country',
   url: 'http://geolite.maxmind.com/download/geoip/database/GeoIPv6.csv.gz',
   src: 'GeoIPv6.csv',
@@ -52,23 +52,30 @@ function mkdir(name) {
 // Ref: http://stackoverflow.com/questions/8493195/how-can-i-parse-a-csv-string-with-javascript
 // Return array of string values, or NULL if CSV string not well formed.
 function CSVtoArray(text) {
-    var re_valid = /^\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*(?:,\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*)*$/;
-    var re_value = /(?!\s*$)\s*(?:'([^'\\]*(?:\\[\S\s][^'\\]*)*)'|"([^"\\]*(?:\\[\S\s][^"\\]*)*)"|([^,'"\s\\]*(?:\s+[^,'"\s\\]+)*))\s*(?:,|$)/g;
-    // Return NULL if input string is not well formed CSV string.
-    if (!re_valid.test(text)) return null;
-    var a = [];                     // Initialize array to receive values.
-    text.replace(re_value, // "Walk" the string using replace with callback.
-        function(m0, m1, m2, m3) {
-            // Remove backslash from \' in single quoted values.
-            if      (m1 !== undefined) a.push(m1.replace(/\\'/g, "'"));
-            // Remove backslash from \" in double quoted values.
-            else if (m2 !== undefined) a.push(m2.replace(/\\"/g, '"'));
-            else if (m3 !== undefined) a.push(m3);
-            return ''; // Return empty string.
-        });
-    // Handle special case of empty last value.
-    if (/,\s*$/.test(text)) a.push('');
-    return a;
+  var re_valid = /^\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*(?:,\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*)*$/;
+  var re_value = /(?!\s*$)\s*(?:'([^'\\]*(?:\\[\S\s][^'\\]*)*)'|"([^"\\]*(?:\\[\S\s][^"\\]*)*)"|([^,'"\s\\]*(?:\s+[^,'"\s\\]+)*))\s*(?:,|$)/g;
+  // Return NULL if input string is not well formed CSV string.
+  if (!re_valid.test(text)) return null;
+  var a = []; // Initialize array to receive values.
+  text.replace(re_value, // "Walk" the string using replace with callback.
+    function(m0, m1, m2, m3) {
+      // Remove backslash from \' in single quoted values.
+      if (m1 !== undefined) {
+        a.push(m1.replace(/\\'/g, "'"));
+      }
+      // Remove backslash from \" in double quoted values.
+      else if (m2 !== undefined) {
+        a.push(m2.replace(/\\"/g, '"'));
+      } else if (m3 !== undefined) {
+        a.push(m3);
+      }
+      return ''; // Return empty string.
+    });
+  // Handle special case of empty last value.
+  if (/,\s*$/.test(text)) {
+    a.push('');
+  }
+  return a;
 }
 
 function fetch(downloadUrl, cb) {
@@ -153,7 +160,7 @@ function extract(tmpFile, tmpFileName, cb) {
 }
 
 function processCountryData(src, dest, cb) {
-  var lines=0;
+  var lines = 0;
   function processLine(line) {
     var fields = CSVtoArray(line);
 
@@ -200,7 +207,7 @@ function processCountryData(src, dest, cb) {
     b.write(cc, bsz - 2);
 
     fs.writeSync(datFile, b, 0, bsz, null);
-    if(Date.now() - tstart > 5000) {
+    if (Date.now() - tstart > 5000) {
       tstart = Date.now();
       process.stdout.write('\nStill working (' + lines + ') ...');
     }
@@ -242,14 +249,17 @@ async.forEachSeries(databases, function(database, nextDatabase) {
     });
   });
 }, function(err) {
-  console.log();
+    console.log();
 
-  if (err) {
-    console.log('Failed to Update Databases from MaxMind.'.red);
-    process.exit();
-  } else {
-    console.log('Successfully Updated Databases from MaxMind.'.green);
-    if (process.argv[2]=='debug') console.log('Notice: temporary files are not deleted for debug purposes.'.bold.yellow);
-    else rimraf(tmpPath);
-  }
-});
+    if (err) {
+      console.log('Failed to Update Databases from MaxMind.'.red);
+      process.exit();
+    } else {
+      console.log('Successfully Updated Databases from MaxMind.'.green);
+      if (process.argv[2] == 'debug') {
+        console.log('Notice: temporary files are not deleted for debug purposes.'.bold.yellow);
+      } else {
+        rimraf(tmpPath);
+      }
+    }
+  });
