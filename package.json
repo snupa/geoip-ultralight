@@ -1,6 +1,6 @@
 {
   "name": "geoip-ultralight",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Super lightweight GeoIP implementation with country data",
   "keywords": [
     "geo",
