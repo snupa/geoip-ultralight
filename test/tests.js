@@ -1,44 +1,16 @@
-var geoip = require('../lib/geoip');
+var geoip  = require('../lib/geoip');
+var expect = require('expect.js');
 
-module.exports = {
-  testLookup: function(test) {
-    test.expect(2);
+describe('geoip-ultralight', function() {
+  describe('lookupCountry', function() {
+    it('returns the country for IPv4 addresses', function() {
+      var ip = '8.8.4.4';
+      expect(geoip.lookupCountry(ip), 'US');
+    });
 
-    var ip = '8.8.4.4';
-    var ipv6 = '2001:4860:b002::68';
-
-    var actual = geoip.lookup(ip);
-
-    test.ok(actual, 'should return data about IPv4.');
-
-    actual = geoip.lookup(ipv6);
-
-    test.ok(actual, 'should return data about IPv6.');
-
-    test.done();
-  },
-
-  testUTF8: function(test) {
-    test.expect(2);
-
-    var ip = "31.17.105.227";
-    var expected = "Neumünster";
-    var actual = geoip.lookup(ip);
-
-    test.ok(actual, "Should return a non-null value for " + ip);
-    test.equal(actual.city, expected, "UTF8 city name does not match");
-
-    test.done();
-  },
-
-  testMetro: function(test) {
-    test.expect(2);
-
-    var actual = geoip.lookup("23.240.63.68");
-
-    test.equal(actual.city, "Van Nuys");
-    test.equal(actual.metro, 803);
-
-    test.done();
-  }
-};
+    it('returns the country for IPv6 addresses', function() {
+      var ip = '2001:4860:b002::68';
+      expect(geoip.lookupCountry(ip), 'US');
+    });
+  });
+});
