@@ -1,169 +1,101 @@
-geoip-ultralight
-==========
+# geoip-ultralight
 
-A native NodeJS API for the GeoLite data from MaxMind.
+An even lighter alternative to geoip-lite and libGeoIP wrappers. It provides
+country data for IP addresses based on the GeoLite data from MaxMind. It does
+not provide city, state or region data. Forked from geoip-lite.
 
-This product includes GeoLite data created by MaxMind, available from http://maxmind.com/
+## Why
 
-introduction
-------------
+Unlike other geoip libraries for node, geoip-lite and geoip-ultralight don't
+require compiling `libGeoIP`; they're JavaScript implementations. While neither
+offer the fully functionality of `geoip`, they're signficantly faster.
 
-MaxMind provides a set of data files for IP to Geo mapping along with opensource libraries to parse and lookup these data files.
-One would typically write a wrapper around their C API to get access to this data in other languages (like JavaScript).
+`geoip-lite` is fairly light already, boasting 6 microsecond lookups for IPv4
+addresses, and 30 microsecond lookups for IPv6. However, it ships over 60MB of
+data for handling city/region names, and introduces over 200MB of memory
+overhead. If all you want is country data, and not city/regions, then that's a
+lot of RAM for unused functionality.
 
-GeoIP-lite instead attempts to be a fully native JavaScript library.  A converter script converts the CSV files from MaxMind into
-an internal binary format (note that this is different from the binary data format provided by MaxMind).  The geoip module uses this
-binary file to lookup IP addresses and return the country, region and city that it maps to.
+Instead, `geoip-ultralight` includes under 2MB of data, and has negligable
+memory consumption. If all you need is to identify countries, this will work
+perfectly with your Digital Ocean or AWS micro instances.
 
-Both IPv4 and IPv6 addresses are supported, however since the GeoLite IPv6 database does not currently contain any city or region
-information, city and region lookups are only supported for IPv4.
+## Installation
 
-philosophy
-----------
+It can be installed via `npm` using:
 
-I was really aiming for a fast JavaScript native implementation for geomapping of IPs.  My prime motivator was the fact that it was
-really hard to get libgeoip built for Mac OSX without using the library from MacPorts.
+``` bash
+npm install --save geoip-ultralight
+```
 
-why geoip-lite
---------------
+## Usage
 
-So why are we called geoip-lite?  `npm` already has a [geoip package](http://search.npmjs.org/#/geoip) which provides a JavaScript
-binding around libgeoip from MaxMind.  The `geoip` package is fully featured and supports everything that the MaxMind APIs support,
-however, it requires `libgeoip` to be installed on your system.
+``` javascript
+var geoip = require('geoip-ultralight');
 
-`geoip-lite` on the other hand is a fully JavaScript implementation.  It is not as fully featured as `geoip` however, by reducing its
-scope, it is about 40% faster at doing lookups.  On average, an IP to Location lookup should take 20 microseconds on a Macbook Pro.
-IPv4 addresses take about 6 microseconds, while IPv6 addresses take about 30 microseconds.
-
-synopsis
---------
-
-```javascript
-var geoip = require('geoip-lite');
-
+// Unlike geoip-lite's lookup() call, geoip-ultralight exposes
+// a lookupCountry() function to avoid confusion
 var ip = "207.97.227.239";
-var geo = geoip.lookup(ip);
-
-console.log(geo);
-{ range: [ 3479299040, 3479299071 ],
-  country: 'US',
-  region: 'CA',
-  city: 'San Francisco',
-  ll: [37.7484, -122.4156] }
+geoip.lookupCountry(ip); // => "US"
 ```
 
-installation
-------------
-### 1. get the library
+## API
 
-    $ npm install geoip-lite
+geoip-ultralight is completely synchronous. There are no callbacks involved.
+All blocking file IO is done at startup time, so runtime calls are executed
+quickly in memory. Startup may take up to 200ms while reading and indexing
+files into memory.
 
-### 2. get the datafiles
+### lookupCountry
 
-Then download the city data files from https://github.com/bluesmoon/node-geoip/tree/master/data
-You need to get `geoip-city.dat` and `geoip-city-names.dat` and put them into the `data/` directory
-of this package.
+The function accepts IP addresses in dotted quad notation, IPv6 colon notation,
+as well as 32bit unsigned integers (treated as IPv4). Note that any square
+brackets should be removed from IPv6 addresses beforehand.
 
-You could also run `npm run-script updatedb` to do this automatically.
+``` javascript
+var country = geoip.lookupCountry(ip);
+```
+If the IP address was found, `lookupCountry` returns a
+[2 letter ISO-3166-1](http://www.maxmind.com/app/iso3166)
+country code. Otherwise it returns null.
 
-**NOTE** that this requires a lot of RAM.  It is known to fail on on a Digital Ocean or AWS micro instance.
-There are no plans to change this.  `geoip-lite` stores all data in RAM in order to be fast.
+### pretty
 
-API
----
+Given a 32bit unsigned integer, `pretty` will return a human readable string
+equivalent.
 
-geoip-lite is completely synchronous.  There are no callbacks involved.  All blocking file IO is done at startup time, so all runtime
-calls are executed in-memory and are fast.  Startup may take up to 200ms while it reads into memory and indexes data files.
-
-### Looking up an IP address ###
-
-If you have an IP address in dotted quad notation, IPv6 colon notation, or a 32 bit unsigned integer (treated
-as an IPv4 address), pass it to the `lookup` method.  Note that you should remove any `[` and `]` around an
-IPv6 address before passing it to this method.
-
-```javascript
-var geo = geoip.lookup(ip);
+``` javascript
+    geoip.pretty(ip);
 ```
 
-If the IP address was found, the `lookup` method returns an object with the following structure:
+The function returns a string if the format was recognized, otherwise it returns
+the original input.
 
-```javascript
-{
-   range: [ <low bound of IP block>, <high bound of IP block> ],
-   country: 'XX',                 // 2 letter ISO-3166-1 country code
-   region: 'RR',                  // 2 character region code.  For US states this is the 2 letter
-                                  // ISO-3166-2 subcountry code for other countries, this is the
-                                  // FIPS 10-4 subcountry code
-   city: "City Name",             // This is the full city name
-   ll: [<latitude>, <longitude>]  // The latitude and longitude of the city
-}
-```
+### startWatchingDataUpdate
 
-The actual values for the `range` array depend on whether the IP is IPv4 or IPv6 and should be
-considered internal to `geoip-lite`.  To get a human readable format, pass them to `geoip.pretty()`
-
-If the IP address was not found, the `lookup` returns `null`
-
-### Pretty printing an IP address ###
-
-If you have a 32 bit unsigned integer, or a number returned as part of the `range` array from the `lookup` method,
-the `pretty` method can be used to turn it into a human readable string.
-
-```javascript
-    console.log("The IP is %s", geoip.pretty(ip));
-```
-
-This method returns a string if the input was in a format that `geoip-lite` can recognise, else it returns the
-input itself.
-
-### Start and stop watching for data updates ###
-
-If you have a server running `geoip-lite`, and you want to update its geo data without a restart, you can enable
-the data watcher to automatically refresh in-memory geo data when a file changes in the data directory.
+When invoked, the server will watch the data directory for changes and reload
+the in-memory geo data as necessary.
 
 ```javascript
 geoip.startWatchingDataUpdate();
 ```
 
-This tool can be used with `npm run-script updatedb` to periodically update geo data on a running server.
+This can be used along with `npm run-script updatedb` to periodically update
+geo data on a running server.
 
+### stopWatchingDataUpdate
 
-Built-in Updater
-----------------
+Stops the server from watching the data dir for updates.
 
-This package contains an update script that can pull the files from MaxMind and handle the conversion from CSV.
-A npm script alias has been setup to make this process easy. Please keep in mind this requires internet and MaxMind
-rate limits that amount of downloads on thier servers.
+```javascript
+geoip.stopWatchingDataUpdate();
+```
+
+## Built-in Updater
+
+The package contains an update script that can pull geo data from MaxMind and
+handle the necessary conversions into a compatible format.
 
 ```shell
 npm run-script updatedb
 ```
-
-Caveats
--------
-
-This package includes the GeoLite database from MaxMind.  This database is not the most accurate database available,
-however it is the best available for free.  You can use the commercial GeoIP database from MaxMind with better
-accuracy by buying a license from MaxMind, and then using the conversion utility to convert it to a format that
-geoip-lite understands.  You will need to use the `.csv` files from MaxMind for conversion.
-
-Also note that on occassion, the library may take up to 5 seconds to load into memory.  This is largely dependent on
-how busy your disk is at that time.  It can take as little as 200ms on a lightly loaded disk.  This is a one time
-cost though, and you make it up at run time with very fast lookups.
-
-References
-----------
-  - <a href="http://www.maxmind.com/app/iso3166">Documentation from MaxMind</a>
-  - <a href="http://en.wikipedia.org/wiki/ISO_3166">ISO 3166 (1 & 2) codes</a>
-  - <a href="http://en.wikipedia.org/wiki/List_of_FIPS_region_codes">FIPS region codes</a>
-
-Copyright
----------
-
-`geoip-lite` is Copyright 2011-2012 Philip Tellis <philip@bluesmoon.info> and the latest version of the code is
-available at https://github.com/bluesmoon/node-geoip
-
-License
--------
-
-There are two licenses for the code and data.  See the [LICENSE](https://github.com/bluesmoon/node-geoip/blob/master/LICENSE) file for details.
