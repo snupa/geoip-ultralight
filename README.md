@@ -65,7 +65,7 @@ Given a 32bit unsigned integer, `pretty` will return a human readable string
 equivalent.
 
 ``` javascript
-    geoip.pretty(ip);
+geoip.pretty(ip);
 ```
 
 The function returns a string if the format was recognized, otherwise it returns
