@@ -4,6 +4,8 @@ An even lighter alternative to geoip-lite and libGeoIP wrappers. It provides
 country data for IP addresses based on the GeoLite data from MaxMind. It does
 not provide city, state or region data. Forked from geoip-lite.
 
+[![Build Status](https://travis-ci.org/danielstjules/geoip-ultralight.svg?branch=master)](https://travis-ci.org/danielstjules/geoip-ultralight)
+
 ## Why
 
 Unlike other geoip libraries for node, geoip-lite and geoip-ultralight don't
