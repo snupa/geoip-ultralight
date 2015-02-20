@@ -10,7 +10,7 @@ not provide city, state or region data. Forked from geoip-lite.
 
 Unlike other geoip libraries for node, geoip-lite and geoip-ultralight don't
 require compiling `libGeoIP`; they're JavaScript implementations. While neither
-offer the fully functionality of `geoip`, they're signficantly faster.
+offer the full functionality of `geoip`, they're significantly faster.
 
 `geoip-lite` is fairly light already, boasting 6 microsecond lookups for IPv4
 addresses, and 30 microsecond lookups for IPv6 on a Macbook Pro. However, it
