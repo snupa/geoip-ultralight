@@ -1,4 +1,4 @@
-GeoIP-lite
+geoip-ultralight
 ==========
 
 A native NodeJS API for the GeoLite data from MaxMind.
