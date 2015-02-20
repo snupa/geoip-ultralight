@@ -13,12 +13,12 @@ require compiling `libGeoIP`; they're JavaScript implementations. While neither
 offer the fully functionality of `geoip`, they're signficantly faster.
 
 `geoip-lite` is fairly light already, boasting 6 microsecond lookups for IPv4
-addresses, and 30 microsecond lookups for IPv6. However, it ships over 60MB of
-data for handling city/region names, and introduces over 200MB of memory
-overhead. If all you want is country data, and not city/regions, then that's a
-lot of RAM for unused functionality.
+addresses, and 30 microsecond lookups for IPv6 on a Macbook Pro. However, it
+ships over 60MB of data for handling city/region names, and thus introduces
+significant memory overhead. If all you want is country data, and not
+city/regions, then that's a lot of RAM for unused functionality.
 
-Instead, `geoip-ultralight` includes under 2MB of data, and has negligable
+Instead, `geoip-ultralight` includes under 2MB of data, and has negligible
 memory consumption. If all you need is to identify countries, this will work
 perfectly with your Digital Ocean or AWS micro instances.
 
