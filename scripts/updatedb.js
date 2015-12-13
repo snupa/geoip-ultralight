@@ -11,7 +11,7 @@ var user_agent = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 ' +
 
 var cp = require('child_process');
 var fs = require('fs');
-var http = require('http');
+var http = require('https');
 var path = require('path');
 var url = require('url');
 var zlib = require('zlib');
@@ -32,12 +32,12 @@ var tmpPath = path.join(__dirname, '..', 'tmp');
 
 var databases = [{
   type: 'country',
-  url: 'http://geolite.maxmind.com/download/geoip/database/GeoIPCountryCSV.zip',
+  url: 'https://geolite.maxmind.com/download/geoip/database/GeoIPCountryCSV.zip',
   src: 'GeoIPCountryWhois.csv',
   dest: 'geoip-country.dat'
   }, {
   type: 'country',
-  url: 'http://geolite.maxmind.com/download/geoip/database/GeoIPv6.csv.gz',
+  url: 'https://geolite.maxmind.com/download/geoip/database/GeoIPv6.csv.gz',
   src: 'GeoIPv6.csv',
   dest: 'geoip-country6.dat'
 }];
