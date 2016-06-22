@@ -20,7 +20,6 @@ fs.existsSync = fs.existsSync || path.existsSync;
 
 var async = require('async');
 var colors = require('colors');
-var glob = require('glob');
 var iconv = require('iconv-lite');
 var lazy = require('lazy');
 var rimraf = require('rimraf').sync;
