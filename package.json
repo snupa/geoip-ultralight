@@ -1,7 +1,7 @@
 {
-  "name": "geoip-ultralight",
-  "version": "0.1.5",
-  "description": "Super lightweight GeoIP implementation with country data",
+  "name": "thorin-geoip-ultralight",
+  "version": "1.0.0",
+  "description": "Super lightweight GeoIP implementation with country data, maintained by Thorin.js",
   "keywords": [
     "geo",
     "geoip",
@@ -12,7 +12,7 @@
     "maxmind",
     "country"
   ],
-  "homepage": "https://github.com/danielstjules/geoip-ultralight",
+  "homepage": "https://github.com/snupa/geoip-ultralight",
   "author": "Daniel St. Jules <danielst.jules@gmail.com>",
   "files": [
     "lib/",
@@ -34,12 +34,12 @@
     "updatedb-debug": "node scripts/updatedb.js debug"
   },
   "dependencies": {
-    "async": "~0.1.22",
-    "colors": "0.6.0-1",
-    "iconv-lite": "~0.2.11",
+    "async": "^2.6",
+    "colors": "^1.1.2",
+    "iconv-lite": "^0.4.13",
     "lazy": "~1.0.11",
-    "rimraf": "~2.0.2",
-    "unzip": "~0.0.4"
+    "rimraf": "^2.6.2",
+    "unzip": "^0.1.11"
   },
   "config": {
     "update": true
@@ -47,5 +47,6 @@
   "devDependencies": {
     "mocha": "*",
     "expect.js": "*"
-  }
+  },
+  "license": "MIT"
 }

@@ -143,18 +143,20 @@ function extract(tmpFile, tmpFileName, cb) {
     cb();
   } else {
     process.stdout.write('Extracting ' + tmpFileName + ' ...');
-
-    var unzipStream = unzip.Extract({
-      path: path.dirname(tmpFile)
-    });
-
-    var pipeSteam = fs.createReadStream(tmpFile).pipe(unzipStream);
-
-    pipeSteam.on('end', function() {
-      console.log(' DONE'.green);
-
-      cb();
-    });
+    fs.createReadStream(tmpFile)
+      .pipe(unzip.Parse())
+      .on('entry', function(entry) {
+        var fileName = path.basename(entry.path);
+        var type = entry.type; // 'Directory' or 'File'
+        if (type.toLowerCase() === 'file' && path.extname(fileName) === '.csv') {
+          entry.pipe(fs.createWriteStream(path.join(tmpPath, fileName)));
+        } else {
+          entry.autodrain();
+        }
+      })
+      .on('finish', function() {
+        cb(null);
+      });
   }
 }
 
