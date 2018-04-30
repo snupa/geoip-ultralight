@@ -1,6 +1,6 @@
 {
   "name": "thorin-geoip-ultralight",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Super lightweight GeoIP implementation with country data, maintained by Thorin.js",
   "keywords": [
     "geo",
